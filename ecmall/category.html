@@ -1,0 +1,85 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link href="../css/mui.css" rel="stylesheet" />
+		<script src="../js/flexible.js"></script>
+		<script src="../js/flexible_css.js"></script>
+		<script src="../js/vue.js"></script>
+		<script src="../config/server.js"></script>
+		<link rel="stylesheet" type="text/css" href="../css/page_css/category.css"/>
+	</head>
+
+	<body>
+		<header class="mui-bar mui-bar-nav">
+			<h1 class="mui-title">标题</h1>
+		</header>
+		<div class="mui-content" id="vu">
+			<div class="nav_box">
+				<div class="left_silder">
+					<ul class="left_silder_nav">
+						<li v-for="(item,index) in categories" @click="clk(item,index)" :class="item.id == selectedSide.id?'active':''">{{item.name}}</li>
+					</ul>
+				</div>
+				<div class="right_silder">
+					<ul class="right_silder_nav">
+						<li>全部</li>
+						<li v-for="(item,index) in subCategories">{{item.name}}</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</body>
+
+<script src="../js/mui.js"></script>
+<script type="text/javascript">
+	mui.init()
+	mui.plusReady(function() {
+		// 实例化vue
+		var app = new Vue({
+			el: '#vu',
+			data: {
+				selectedSide: null,//选项卡
+				categories: [],//左侧栏导航
+				subCategories: [],//右侧导航
+				params:{
+					"page": 1,
+					"per_page": 1000
+				},
+			},
+			created: function(){
+				this.navlist();
+			},
+			methods:{
+				clk: function(item,index){
+					this.selectedSide = item;
+					this.subCategories = item.categories;//右侧导航
+				},
+				navlist: function(){//左侧导航
+					var _this = this;
+					mui.ajax( GLOBAL_CONFIG.API_HOST + '/v2/ecapi.category.list', {
+						data: _this.params,
+						dataType: 'json',
+						type: 'post',
+						timeout: 10000,
+						headers: {
+							'Content-Type': 'application/json'
+						},
+						success: function(res) {
+							_this.categories = res.categories;
+							_this.selectedSide = _this.categories[0];
+							_this.subCategories = _this.selectedSide.categories;
+						},
+						error: function(xhr, type, errorThrown) {
+							console.log(type);
+						}
+					})
+				}
+			}
+		});
+	});
+</script>
+</html>

@@ -1,0 +1,211 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link href="../css/mui.css" rel="stylesheet" />
+		<script src="../js/vue.js"></script>
+		<script src="../js/flexible.js"></script>
+		<script src="../js/flexible_css.js"></script>
+		<script src="../config/server.js"></script>
+		<link rel="stylesheet" type="text/css" href="../css/app_public.css" />
+		<link rel="stylesheet" type="text/css" href="../css/swiper.min.css" />
+		<link rel="stylesheet" type="text/css" href="../css/page_css/sy.css" />
+	</head>
+	<body>
+		<header class="mui-bar mui-bar-transparent mh_bg"></header>
+		<div class="mui-content">
+			<!-- vue实例 -->
+			<div id="app">
+				<div class="swiper-container">
+					<div class="swiper-wrapper">
+						<div class="swiper-slide" v-for="(item,index) in banner"><img :src="item.photo.large"></div>
+					</div>
+					<div class="swiper-pagination"></div>
+				</div>
+				<!-- 导航菜单 -->
+				<div class="home-menu" v-if="navData && navData.length>0">
+					<div class="menu-item" v-for="item in navData">
+						<img class="item-icon" :src="item.img_url" />
+						<div class="item-text" v-text="item.img_name"></div>
+					</div>
+				</div>
+				<!--办公家具宣传图-->
+				<div class="bgjj_box" v-if='goodsbanner && goodsbanner.length>0'>
+					<div class="bgjj_left">
+						<img :src="goodsbanner[0].advertisement" />
+					</div>
+					<div class="bgjj_right">
+						<p class="bgjj_top"><img :src="goodsbanner[1].advertisement" /></p>
+						<p class="bgjj_bottom"><img :src="goodsbanner[2].advertisement" /></p>
+					</div>
+				</div>
+				<!-- 广告宣传图 -->
+				<div class="gg_banner_box" v-if='goodsbanner && goodsbanner.length>0'>
+					<img :src="goodsbanner[3].advertisement" />
+				</div>
+				<div class="gg_banner_box" v-if='goodsbanner && goodsbanner.length>0'>
+					<img :src="goodsbanner[4].advertisement" />
+				</div>
+				<!-- 热门推荐 -->
+				<div class="hot_box" v-if="productListData && productListData.length">
+					<div class="common-header hot_tj_box">
+						<img src="../images/hot_tj_img.png" />
+					</div>
+					<ul class="product_box">
+						<li v-for="(product,index) in productListData">
+							<div class="item_photo">
+								<img :data-original="product.photos[0].large" alt="">
+							</div>
+							<div class="item_name">{{product.name}}</div>
+							<div class="item_price">￥{{product.current_price || 0.00}}</div>
+							<div class="item_other">
+								<p class="other_comment">
+									{{product.comment_count}}人评论
+								</p>
+								<p class="other_rate">
+									{{product.review_rate}}好评
+								</p>
+							</div>
+						</li>
+					</ul>
+				</div>
+
+			</div>
+		</div>
+	</body>
+
+	<script src="../js/mui.js"></script>
+	<script src="../js/swiper.min.js"></script>
+	<!-- <script src="../js/mui.lazyload.js"></script>
+	<script src="../js/mui.lazyload.img.js"></script> -->
+	<script src="../js/jquery.js"></script>
+	<script src="../js/jquery.lazyload.min.js"></script>
+	<script type="text/javascript">
+		mui.init()
+		mui.plusReady(function() {
+			// 实例化vue
+			var app = new Vue({
+				el: '#app',
+				data: {
+					message: '',
+					banner: [], //轮播图
+					params: {
+						"page": 1,
+						"per_page": 10
+					},
+					goodsbanner: [],
+					navData: [],
+					productListData: [],
+				},
+				created: function() {
+					this.bannerlist(this.params);
+					this.bannergoods();
+					this.navlist();
+					this.productList();
+				},
+				updated: function() { //更新
+					var mySwiper = new Swiper('.swiper-container', {
+						autoplay: {
+							delay: 4000,
+							stopOnLastSlide: false, //切换到最后一张停止切换
+							disableOnInteraction: false, //用户操作后是否停止切换
+						},
+						pagination: {
+							el: '.swiper-pagination',
+						},
+						loop: true, //循环
+					});
+					// 图片懒加载
+					$(".product_box img").lazyload({
+						placeholder : "", //用图片提前占位
+						threshold: 180,// 提前开始加载
+						effect : 'fadeIn'// 载入使用何种效果
+					});
+				},
+				methods: {
+					bannerlist: function(params) { //轮播图
+						var _this = this;
+						mui.ajax(GLOBAL_CONFIG.API_HOST + '/v2/ecapi.banner.list', {
+							data: params,
+							dataType: 'json',
+							type: 'post',
+							timeout: 10000,
+							headers: {
+								'Content-Type': 'application/json'
+							},
+							success: function(res) {
+								_this.banner = res.banners;
+							},
+							error: function(xhr, type, errorThrown) {
+								console.log(type);
+							}
+						})
+					},
+					bannergoods: function() { //广告图
+						var _this = this;
+						mui.ajax(GLOBAL_CONFIG.API_HOST + '/v2/ecapi.invoice.afficheind.get', {
+							data: {},
+							dataType: 'json',
+							type: 'post',
+							timeout: 10000,
+							headers: {
+								'Content-Type': 'application/json'
+							},
+							success: function(res) {
+								_this.goodsbanner = res;
+							},
+							error: function(xhr, type, errorThrown) {
+								console.log(type);
+							}
+						})
+					},
+					navlist: function() { //导航菜单
+						var _this = this;
+						mui.ajax(GLOBAL_CONFIG.API_HOST + '/v2/ecapi.invoice.gettypelist.get', {
+							data: {},
+							dataType: 'json',
+							type: 'post',
+							timeout: 10000,
+							headers: {
+								'Content-Type': 'application/json'
+							},
+							success: function(res) {
+								_this.navData = res;
+							},
+							error: function(xhr, type, errorThrown) {
+								console.log(type);
+							}
+						})
+					},
+					productList: function() { //热门推荐
+						var _this = this;
+						var params = {};
+						params.page = 1;
+						params.per_page = 10;
+						mui.ajax(GLOBAL_CONFIG.API_HOST + '/v2/ecapi.recommend.product.list', {
+							data: params,
+							dataType: 'json',
+							type: 'post',
+							timeout: 10000,
+							headers: {
+								'Content-Type': 'application/json'
+							},
+							success: function(res) {
+								_this.productListData = res.products;
+							},
+							error: function(xhr, type, errorThrown) {
+								console.log(type);
+							}
+						})
+					},
+				},
+				mounted: function() {
+					
+				},
+			})
+		});
+	</script>
+</html>

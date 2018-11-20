@@ -1,0 +1,55 @@
+.mui-content{
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	top: 0;
+	background: #fff;
+}
+.nav_box{
+	display: flex;
+}
+.left_silder{
+	width: 35%;
+}
+.right_silder{
+	width: 65%;
+}
+.left_silder_nav{
+	background: #eeeeee;
+}
+.left_silder_nav li,.right_silder_nav li{
+	position: relative;
+	z-index: 9999;
+	height: 1.306666rem;
+	line-height: 1.306666rem;
+	background: #eeeeee;
+	border-right: 1px solid #d2d2d2;
+	border-bottom: 1px solid #d2d2d2;
+	font-size: 0.373333rem;
+	color: #333333;
+	text-align: center;
+}
+.right_silder_nav li{
+	background: #fff;border: none;
+}
+.active::after {
+	content: '';
+	display: block;
+	width: 0.08rem;
+	height: 0.373333rem;
+	background: #2b70d8;
+	position: absolute;
+	top: 50%;
+	left: 0.4rem;
+	margin-top: -0.186666rem;
+	color: #2b70d8;
+}
+.active span{
+	color: #2b70d8!important;
+}
+.active{
+	background: #fff!important;
+	border-right: none!important;
+	color: #2b70d8!important;
+}
